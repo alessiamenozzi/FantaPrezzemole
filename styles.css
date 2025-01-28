@@ -215,3 +215,47 @@ footer {
     object-fit: cover; /* Per riempire lo spazio senza deformarsi */
     border-radius: 10px;
 }
+
+/* Stile della sidebar su dispositivi grandi */
+aside {
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px;
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Nasconde la sidebar su schermi piccoli */
+@media screen and (max-width: 768px) {
+    aside {
+        width: 200px;
+        transform: translateX(-100%);
+        box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Pulsante per aprire la sidebar */
+    .menu-button {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 1000;
+    }
+
+    /* Quando la sidebar è aperta */
+    .sidebar-open {
+        transform: translateX(0);
+    }
+}
