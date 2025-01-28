@@ -36,8 +36,10 @@
         <label for="teamName">Nome Squadra:</label>
         <input type="text" id="teamName"><br><br>
         <p>Seleziona 3 giocatori (budget massimo: 15 denari):</p>
-        <div id="playersContainer"></div>
-        <button onclick="registerTeam()">Salva Squadra</button>
+        <div id="playersContainer">
+            <p>Caricamento giocatori...</p> <!-- Messaggio temporaneo -->
+        </div>
+        <button id="saveTeamBtn" onclick="registerTeam()" disabled>Salva Squadra</button>
         <button onclick="closeRegisterForm()">Chiudi</button>
     </div>
 
@@ -47,7 +49,23 @@
         <p>&copy; 2025 Fantaprezze</p>
     </footer>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCcAMM80Llo3E2zgMKtG4LnsBXSGVkEUnA",
+            authDomain: "fanta-prezze.firebaseapp.com",
+            projectId: "fanta-prezze",
+            storageBucket: "fanta-prezze.firebasestorage.app",
+            messagingSenderId: "812560261380",
+            appId: "1:812560261380:web:e542772a617d1339fcf051",
+            measurementId: "G-76FGRB1XYG"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         function toggleSidebar() {
             document.getElementById("sidebar").classList.toggle("sidebar-open");
         }
@@ -72,11 +90,34 @@
         function openRegisterForm() {
             document.getElementById("registerForm").style.display = "block";
             document.getElementById("registerOverlay").style.display = "block";
+            loadPlayers();
         }
 
         function closeRegisterForm() {
             document.getElementById("registerForm").style.display = "none";
             document.getElementById("registerOverlay").style.display = "none";
+        }
+
+        async function loadPlayers() {
+            const playersSnapshot = await getDocs(collection(db, "players"));
+            const playersContainer = document.getElementById("playersContainer");
+            playersContainer.innerHTML = "";
+
+            playersSnapshot.forEach((doc) => {
+                const player = doc.data();
+                const playerCheckbox = document.createElement("label");
+                playerCheckbox.innerHTML = `
+                    <input type="checkbox" name="players" value="${player.name}-${player.cost}" onclick="checkPlayers()">
+                    ${player.name} (${player.cost} denari)
+                `;
+                playersContainer.appendChild(playerCheckbox);
+                playersContainer.appendChild(document.createElement("br"));
+            });
+        }
+
+        function checkPlayers() {
+            const selectedPlayers = document.querySelectorAll('input[name="players"]:checked');
+            document.getElementById("saveTeamBtn").disabled = selectedPlayers.length !== 3;
         }
 
         async function loadScores() {
@@ -93,9 +134,9 @@
         }
 
         window.onload = () => {
-            loadRecentEvents();
+            loadScores();
+            loadPlayers();
         };
     </script>
-
 </body>
 </html>
