@@ -1,3 +1,104 @@
+/* Generale */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+/* Sidebar */
+aside {
+    position: fixed;
+    left: -250px;
+    top: 0;
+    width: 250px;
+    height: 100%;
+    background: #2c3e50;
+    color: white;
+    padding: 20px;
+    transition: left 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-open {
+    left: 0;
+}
+
+/* Pulsanti sidebar */
+.menu-item {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 12px;
+    margin: 5px 0;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.close-button {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* Pulsante menu mobile */
+.menu-button {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 1000;
+    display: block;
+}
+
+/* Nasconde il menu su desktop */
+@media screen and (min-width: 768px) {
+    .menu-button {
+        display: none;
+    }
+}
+
+/* Contenuto principale */
+.content-container {
+    margin-left: 20px;
+    padding: 20px;
+}
+
+/* Eventi */
+#recentEvents p {
+    background-color: #3498db;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* Modale di registrazione */
+#registerOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
 /* Modale di registrazione */
 #registerForm {
     display: none;
