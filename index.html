@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantaprezze</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="image-container">
+        <img src="logo.png" alt="Fantaprezze Logo">
+    </div>
+
+    <div style="display: flex;">
+        <aside>
+            <button onclick="document.getElementById('registerForm').style.display='block'">Registrati</button>
+            <h3>Punteggi Squadre</h3>
+            <ul id="scoreList"></ul>
+        </aside>
+        <main>
+            <h1>Cosa è accaduto tra le prezze</h1>
+            <div id="recentEvents">Nessun evento registrato.</div>
+        </main>
+    </div>
+
+    <div id="registerOverlay" onclick="closeRegisterForm()"></div>
+    <div id="registerForm" style="display: none;">
+        <h2>Registrazione Squadra</h2>
+        <label for="ownerName">Nome Proprietario:</label>
+        <input type="text" id="ownerName"><br><br>
+        <label for="teamName">Nome Squadra:</label>
+        <input type="text" id="teamName"><br><br>
+        <p>Seleziona 3 giocatori (budget massimo: 15 denari):</p>
+        <div id="playersContainer">
+            <!-- I giocatori saranno caricati dinamicamente da Firebase -->
+        </div>
+        <button onclick="registerTeam()">Salva Squadra</button>
+        <button onclick="closeRegisterForm()">Chiudi</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Fantaprezze</p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCcAMm80Llo3E2zgMKtG4LnsBXSGVkEUnA",
+            authDomain: "fanta-prezze.firebaseapp.com",
+            projectId: "fanta-prezze",
+            storageBucket: "fanta-prezze.firebasestorage.app",
+            messagingSenderId: "812560261380",
+            appId: "1:812560261380:web:e542772a617d1339fcf051",
+            measurementId: "G-76FGRB1XYG"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        function closeRegisterForm() {
+            document.getElementById("registerForm").style.display = "none";
+            document.getElementById("registerOverlay").style.display = "none";
+        }
+
+        window.closeRegisterForm = closeRegisterForm;
+
+
+        async function registerTeam() {
+            console.log("Funzione registerTeam chiamata");
+
+            const ownerName = document.getElementById("ownerName").value;
+            const teamName = document.getElementById("teamName").value;
+            const selectedPlayers = Array.from(document.querySelectorAll('input[name="players"]:checked'))
+                .map(input => input.value.split('-')[0]); // Prendi solo il nome del giocatore
+
+            console.log("Dati inseriti:", { ownerName, teamName, selectedPlayers });
+
+            if (!ownerName || !teamName) {
+                alert("Inserisci tutti i campi obbligatori!");
+                return;
+            }
+            if (selectedPlayers.length !== 3) {
+                alert("Devi selezionare esattamente 3 giocatori.");
+                return;
+            }
+
+            let totalScore = 0; // Punteggio iniziale della squadra
+
+            try {
+                // Recupera il punteggio di ogni giocatore selezionato
+                for (const player of selectedPlayers) {
+                    const playerRef = doc(db, "players", player);
+                    const playerDoc = await getDoc(playerRef);
+                    if (playerDoc.exists()) {
+                        totalScore += playerDoc.data().score || 0; // Somma gli score dei giocatori
+                    }
+                }
+
+                console.log(`Punteggio totale iniziale per ${teamName}: ${totalScore}`);
+
+                // Salva la squadra nel database con il punteggio aggiornato
+                await setDoc(doc(db, "teams", teamName), {
+                    ownerName: ownerName,
+                    teamName: teamName,
+                    players: selectedPlayers,
+                    score: totalScore // Punteggio aggiornato
+                });
+
+                console.log("Squadra registrata con successo nel database!");
+                alert("Squadra registrata con successo!");
+                closeRegisterForm(); // Chiudi il form
+
+                // Ricarica i punteggi dopo la registrazione della squadra
+                loadScores();
+
+            } catch (e) {
+                console.error("Errore durante la registrazione della squadra:", e);
+                alert("Errore durante la registrazione della squadra. Controlla la console per dettagli.");
+            }
+        }
+
+
+        window.registerTeam = registerTeam;
+
+        async function loadPlayers() {
+            const playersSnapshot = await getDocs(collection(db, "players"));
+            const playersContainer = document.getElementById("playersContainer");
+            playersContainer.innerHTML = "";
+
+            playersSnapshot.forEach((doc) => {
+                const player = doc.data();
+                const playerCheckbox = document.createElement("label");
+                playerCheckbox.innerHTML = `
+                    <input type="checkbox" name="players" value="${player.name}-${player.cost}">
+                    ${player.name} (${player.cost} denari)
+                `;
+                playersContainer.appendChild(playerCheckbox);
+                playersContainer.appendChild(document.createElement("br"));
+            });
+        }
+
+        async function loadScores() {
+            const teamsSnapshot = await getDocs(collection(db, "teams"));
+            const scoreList = document.getElementById("scoreList");
+            scoreList.innerHTML = "";
+
+            teamsSnapshot.forEach(doc => {
+                const team = doc.data();
+                const listItem = document.createElement("li");
+                listItem.textContent = `${team.teamName}: ${team.score} punti`;
+                scoreList.appendChild(listItem);
+            });
+        }
+
+        async function loadRecentEvents() {
+            const eventsSnapshot = await getDocs(collection(db, "eventhappened"));
+            const recentEvents = document.getElementById("recentEvents");
+            recentEvents.innerHTML = "";
+
+            eventsSnapshot.forEach(doc => {
+                const event = doc.data();
+                const eventMessage = document.createElement("p");
+                eventMessage.textContent = `${event.who} ha fatto ${event.nomeevento}: +${event.punteggio} punti!`;
+                recentEvents.appendChild(eventMessage);
+            });
+        }
+
+        window.onload = () => {
+            loadScores();
+            loadPlayers();
+            loadRecentEvents();
+        };
+    </script>
+</body>
+</html>
