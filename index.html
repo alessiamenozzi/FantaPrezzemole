@@ -7,19 +7,16 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-    <button class="menu-button" onclick="toggleSidebar()">☰ Menu</button>
-
     <div class="image-container">
         <img src="logo.png" alt="Fantaprezze Logo">
     </div>
 
     <div style="display: flex;">
-        <aside id="sidebar">
+        <aside>
+            <button onclick="document.getElementById('registerForm').style.display='block'">Registrati</button>
             <h3>Punteggi Squadre</h3>
             <ul id="scoreList"></ul>
-        </aside>        
-
+        </aside>
         <main>
             <h1>Cosa è accaduto tra le prezze</h1>
             <div id="recentEvents">Nessun evento registrato.</div>
@@ -170,21 +167,11 @@
             });
         }
 
-        async function toggleSidebar() {
-        const sidebar = document.getElementById("sidebar");
-        sidebar.classList.toggle("sidebar-open");
-        };
-
         window.onload = () => {
             loadScores();
             loadPlayers();
             loadRecentEvents();
-            toggleSidebar();
-        }
-
-        
+        };
     </script>
-
-
 </body>
 </html>
