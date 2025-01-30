@@ -20,9 +20,13 @@
             <ul id="scoreList"></ul>
         </aside>
         <main>
-            <h1>Cosa è accaduto tra le prezze</h1>
+            <h1>Classifica</h1>
+            <ul id="rankingList"></ul>
+        
+            <h1>Ultime news dalle prezze</h1>
             <div id="recentEvents"></div>
         </main>
+        
     </div>
 
     <div id="registerOverlay" onclick="closeRegisterForm()"></div>
@@ -161,41 +165,66 @@
         }
 
         async function loadScores() {
-                const teamsSnapshot = await getDocs(collection(db, "teams"));
-                const playersSnapshot = await getDocs(collection(db, "players"));
-                const scoreList = document.getElementById("scoreList");
+            const teamsSnapshot = await getDocs(collection(db, "teams"));
+            const eventsSnapshot = await getDocs(collection(db, "eventhappened"));
+            const scoreList = document.getElementById("scoreList");
 
-                scoreList.innerHTML = "";
+            scoreList.innerHTML = "";
 
-                // Crea una mappa dei punteggi dei giocatori
-                let playerScores = {};
-                playersSnapshot.forEach(playerDoc => {
-                    let player = playerDoc.data();
-                    playerScores[player.name] = player.score || 0;  // Usa 0 se il punteggio non è definito
-                });
+            // **1️⃣ Mappa per tenere traccia dei punteggi dei giocatori**
+            let playerScores = {};
 
-                // Aggiorna i punteggi delle squadre
-                teamsSnapshot.forEach(async (teamDoc) => {  // Cambiato da "doc" a "teamDoc"
-                    const team = teamDoc.data();
-                    let teamScore = 0;
+            // **Calcola i punteggi totali per ogni giocatore basandosi su "eventhappened"**
+            eventsSnapshot.forEach(doc => {
+                const event = doc.data();
+                playerScores[event.who] = (playerScores[event.who] || 0) + event.punteggio;
+            });
 
-                    // Somma i punteggi dei giocatori della squadra
-                    team.players.forEach(playerName => {
-                        teamScore += playerScores[playerName] || 0;
-                    });
+            console.log("✅ Punteggi aggiornati per i giocatori:", playerScores);
 
-                    // Aggiorna il punteggio della squadra nel database
-                    const teamRef = doc(db, "teams", team.teamName);  // Ora "doc()" è usato correttamente
-                    await updateDoc(teamRef, { score: teamScore });
-
-                    // Mostra il punteggio nella UI
-                    const listItem = document.createElement("li");
-                    listItem.textContent = `${team.teamName}: ${teamScore} punti`;
-                    scoreList.appendChild(listItem);
-                });
-
-                console.log("✅ Punteggi squadre aggiornati!");
+            // **2️⃣ Aggiorna i punteggi nel database per ogni giocatore**
+            for (let playerName in playerScores) {
+                const playerRef = doc(db, "players", playerName);
+                try {
+                    await updateDoc(playerRef, { score: playerScores[playerName] });
+                } catch (error) {
+                    console.warn(`⚠️ Giocatore ${playerName} non trovato in players, ignorato.`);
+                }
             }
+
+            // **3️⃣ Calcola e aggiorna i punteggi delle squadre**
+            let teamsArray = [];
+
+            for (const teamDoc of teamsSnapshot.docs) {
+                const team = teamDoc.data();
+                let teamScore = 0;
+
+                // Somma i punteggi dei giocatori della squadra
+                team.players.forEach(playerName => {
+                    teamScore += playerScores[playerName] || 0;
+                });
+
+                // **Aggiorna il punteggio della squadra su Firebase**
+                const teamRef = doc(db, "teams", team.teamName);
+                await updateDoc(teamRef, { score: teamScore });
+
+                // **Aggiunge alla lista per ordinare**
+                teamsArray.push({ name: team.teamName, score: teamScore });
+            }
+
+            // **4️⃣ Ordina le squadre in ordine decrescente di punteggio**
+            teamsArray.sort((a, b) => b.score - a.score);
+
+            // **5️⃣ Mostra le squadre nella UI in ordine corretto**
+            teamsArray.forEach(team => {
+                const listItem = document.createElement("li");
+                listItem.textContent = `${team.name}: ${team.score} punti`;
+                scoreList.appendChild(listItem);
+            });
+
+            console.log("✅ Punteggi squadre aggiornati e ordinati!");
+        }
+
 
 
 
@@ -204,13 +233,45 @@
             const recentEvents = document.getElementById("recentEvents");
             recentEvents.innerHTML = "";
 
+            // Converti in array e ordina per data (se c'è un timestamp)
+            let eventsArray = [];
             eventsSnapshot.forEach(doc => {
-                const event = doc.data();
+                eventsArray.push(doc.data());
+            });
+
+            eventsArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));  // Ordina per timestamp se presente
+
+            // Mostra solo gli ultimi 10 eventi
+            eventsArray.slice(0, 10).forEach(event => {
                 const eventMessage = document.createElement("p");
                 eventMessage.textContent = `${event.who} ha fatto ${event.nomeevento}: +${event.punteggio} punti!`;
                 recentEvents.appendChild(eventMessage);
             });
         }
+
+        async function loadRanking() {
+            const eventsSnapshot = await getDocs(collection(db, "eventhappened"));
+            const rankingList = document.getElementById("rankingList");
+            rankingList.innerHTML = "";
+
+            let scores = {};
+
+            eventsSnapshot.forEach(doc => {
+                const event = doc.data();
+                scores[event.who] = (scores[event.who] || 0) + event.punteggio;
+            });
+
+            // Converti in array, ordina e crea lista visiva
+            let sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+
+            sortedScores.forEach(([player, score]) => {
+                const listItem = document.createElement("li");
+                listItem.textContent = `${player}: ${score} punti`;
+                rankingList.appendChild(listItem);
+            });
+        }
+
+
 
         async function loadEventList() {
             const eventsSnapshot = await getDocs(collection(db, "eventype"));  // Prende i tipi di evento disponibili
@@ -236,6 +297,7 @@
             loadPlayers();
             loadRecentEvents();
             loadEventList();
+            loadRanking();
         };
 
 
@@ -258,13 +320,9 @@
                     punteggio: eventObject.punteggio
                 });
 
-                // Aggiorna il punteggio del player
-                await updatePlayerScore(playerName, eventObject.punteggio);
-
                 alert("Evento registrato con successo!");
-                document.getElementById("eventRegisterForm").style.display = "none";
                 
-                // Ricarica eventi e punteggi aggiornati
+                // Aggiorna la lista degli eventi registrati
                 loadRecentEvents();
                 loadScores();  
 
@@ -274,7 +332,9 @@
             }
         }
 
+
         window.saveEvent = saveEvent;
+
 
         async function updatePlayerScore(playerName, newPoints) {
             try {

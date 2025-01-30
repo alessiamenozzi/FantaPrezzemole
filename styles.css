@@ -92,7 +92,7 @@ main h1 {
     padding: 12px;
     border-radius: 8px;
     margin-bottom: 10px;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
     text-align: center;
 }
@@ -214,6 +214,59 @@ main h1 {
 
 #eventRegisterForm button:last-child:hover {
     background-color: #c0392b;
+}
+
+
+/* Container per lista players*/
+
+#playersContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+#playersContainer label {
+    display: block;
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+/* Classifica */
+#rankingList {
+    list-style: none;
+    padding: 0;
+}
+
+#rankingList li {
+    background-color: #f1c40f;
+    color: black;
+    padding: 10px;
+    margin: 5px 0;
+    text-align: center;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Ridurre dimensione Classifica e Eventi Recenti */
+#rankingList, #recentEvents {
+    font-size: 14px;  /* Riduci il testo */
+    width: 80%;  /* Mantieni la larghezza contenuta */
+    margin: 0 auto; /* Centra il contenuto */
+}
+
+#rankingList h1, #recentEvents h1 {
+    font-size: 20px; /* Rende i titoli più piccoli */
+}
+
+#rankingList li {
+    font-size: 14px;
+    padding: 8px;
+}
+
+#recentEvents p {
+    font-size: 14px;
+    padding: 8px;
 }
 
 
