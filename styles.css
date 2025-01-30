@@ -1,4 +1,4 @@
-/* Generale */
+/* Stile Generale */
 body {
     font-family: 'Arial', sans-serif;
     margin: 0;
@@ -6,88 +6,152 @@ body {
     background-color: #f4f4f4;
 }
 
+/* Header */
+header {
+    background-color: #2ECC71;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
 /* Sidebar */
 aside {
-    position: fixed;
-    left: -250px;
-    top: 0;
-    width: 250px;
-    height: 100%;
-    background: #2c3e50;
+    background-color: #2c3e50;
     color: white;
     padding: 20px;
-    transition: left 0.3s ease-in-out;
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
 
-.sidebar-open {
-    left: 0;
-}
-
-/* Pulsanti sidebar */
-.menu-item {
-    background: #3498db;
-    color: white;
-    border: none;
-    padding: 12px;
-    margin: 5px 0;
-    cursor: pointer;
-    border-radius: 5px;
+aside h3 {
+    font-size: 18px;
+    border-bottom: 2px solid white;
+    padding-bottom: 5px;
     text-align: center;
-    font-size: 16px;
+    width: 100%;
 }
 
-.close-button {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 12px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    border-radius: 5px;
-    text-align: center;
-    font-size: 16px;
+aside ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
 }
 
-/* Pulsante menu mobile */
-.menu-button {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    background: #e74c3c;
-    color: white;
-    border: none;
+aside ul li {
+    background-color: #34495e;
     padding: 10px;
+    margin: 5px 0;
+    text-align: center;
+    border-radius: 5px;
     font-size: 16px;
+    font-weight: bold;
+}
+
+/* Bottoni */
+aside button {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 12px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
     cursor: pointer;
-    z-index: 1000;
-    display: block;
+    width: 80%;
+    margin: 10px 0;
 }
 
-/* Nasconde il menu su desktop */
-@media screen and (min-width: 768px) {
-    .menu-button {
-        display: none;
-    }
+aside button:hover {
+    background-color: #c0392b;
 }
 
-/* Contenuto principale */
-.content-container {
-    margin-left: 20px;
-    padding: 20px;
+/* Contenuto Principale */
+main {
+    margin-left: 270px;
+    padding: 30px;
+    background-color: white;
+    min-height: 100vh;
+}
+
+main h1 {
+    font-size: 28px;
+    color: #2c3e50;
+    border-bottom: 3px solid #2ECC71;
+    padding-bottom: 10px;
 }
 
 /* Eventi */
 #recentEvents p {
     background-color: #3498db;
     color: white;
-    padding: 10px;
+    padding: 12px;
     border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: bold;
     text-align: center;
 }
 
-/* Modale di registrazione */
+/* Form Registrazione Evento */
+#registerForm {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+    max-height: 80vh;
+    display: none;
+}
+
+#registerForm h2 {
+    margin-top: 0;
+    font-size: 20px;
+    text-align: center;
+}
+
+#registerForm button {
+    margin-top: 10px;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+}
+
+#registerForm button:first-child {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#registerForm button:first-child:hover {
+    background-color: #45a049;
+}
+
+#registerForm button:last-child {
+    background-color: #e74c3c;
+    color: white;
+}
+
+#registerForm button:last-child:hover {
+    background-color: #c0392b;
+}
+
+
+/* Overlay per il modulo */
 #registerOverlay {
     display: none;
     position: fixed;
@@ -99,10 +163,10 @@ aside {
     z-index: 999;
 }
 
-/* Modale di registrazione */
-#registerForm {
-    display: none;
+
+#eventRegisterForm {
     background-color: white;
+    border-radius: 10px;
     padding: 20px;
     width: 90%;
     max-width: 400px;
@@ -112,33 +176,55 @@ aside {
     transform: translate(-50%, -50%);
     z-index: 1000;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-    border-radius: 10px;
+    overflow-y: auto;
+    max-height: 80vh;
+    display: none;
 }
 
-#saveTeamBtn:disabled {
-    background: lightgray;
-    color: gray;
-    cursor: not-allowed;
-}
-
-/* Centrare il testo */
-p {
+#eventRegisterForm h2 {
+    margin-top: 0;
+    font-size: 20px;
     text-align: center;
 }
 
-/* Footer con logo */
-footer {
-    text-align: center;
-    background: #2ECC71;
-    color: white;
-    padding: 20px;
-    position: fixed;
-    bottom: 0;
+#eventRegisterForm button {
+    margin-top: 10px;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
     width: 100%;
 }
 
-footer img {
-    width: 80px;
-    display: block;
-    margin: auto;
+#eventRegisterForm button:first-child {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#eventRegisterForm button:first-child:hover {
+    background-color: #45a049;
+}
+
+#eventRegisterForm button:last-child {
+    background-color: #e74c3c;
+    color: white;
+}
+
+#eventRegisterForm button:last-child:hover {
+    background-color: #c0392b;
+}
+
+
+/* Footer */
+footer {
+    text-align: center;
+    background-color: #2ECC71;
+    color: white;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    font-size: 14px;
 }
